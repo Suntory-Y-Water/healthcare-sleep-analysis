@@ -20,3 +20,20 @@ def load_sleep_data(file_path):
     df['Duration'] = df['End'] - df['Start']
     
     return df
+
+def load_steps_data(file_path):
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+    
+    steps_data = []
+    for record in root.findall('.//Record'):
+        if record.get('type') == 'HKQuantityTypeIdentifierStepCount':
+            date = record.get('startDate')
+            steps = record.get('value')
+            steps_data.append([date, steps])
+    
+    df = pd.DataFrame(steps_data, columns=['Date', 'Steps'])
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Steps'] = df['Steps'].astype(int)
+    
+    return df
